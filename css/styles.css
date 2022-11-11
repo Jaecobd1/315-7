@@ -1,0 +1,88 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html,
+body {
+    height: 100%;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+p {
+    margin-bottom: 16px;
+}
+
+#app {
+    margin: 50px;
+}
+
+ul {}
+
+li {
+    cursor: pointer;
+    list-style-type: none;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    padding-left: 20px;
+    background-color: rgb(22, 141, 164);
+    position: relative;
+}
+
+li:nth-child(odd) {
+    background-color: rgb(37, 38, 42);
+    color: white;
+}
+
+li input {
+    margin: 0 20px;
+}
+
+li.strike {
+    text-decoration: line-through;
+}
+
+.right {
+    position: absolute;
+    right: 20px;
+}
+
+.delete {
+    cursor: pointer;
+    position: absolute;
+    right: 20px;
+}
+
+button {
+    border: none;
+    background-color: teal;
+    color: white;
+    padding: 10px 20px;
+    border-radius: 50px;
+    margin: 10px;
+    width: 200px;
+}
+
+input {
+    height: 42px;
+    width: 600px;
+}
+
+.title {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    align-items: center;
+}
+
+.title h1 {
+    width: 60vw;
+    text-align: center;
+}

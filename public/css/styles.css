@@ -23,7 +23,9 @@ p {
     margin: 50px;
 }
 
-ul {}
+ul {
+    display: block;
+}
 
 li {
     cursor: pointer;
@@ -72,7 +74,7 @@ button {
 
 input {
     height: 42px;
-    width: 600px;
+    margin: 4px;
 }
 
 .title {
@@ -85,4 +87,28 @@ input {
 .title h1 {
     width: 60vw;
     text-align: center;
+}
+
+nav {
+    height: 50px;
+    background-color: #000;
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    color: white;
+}
+
+.create-account,
+.login {
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.login-create {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    flex-direction: column;
 }

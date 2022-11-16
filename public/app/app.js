@@ -538,7 +538,41 @@ var LISTS = [{
             },
         ]
     }
-]
+];
+
+
+var userExists = false;
+var userFullName = "";
+
+function loadCreateAccount() {
+    $(".login-create").html(`<div class="buttons"> <button onclick="loadLogin()">Login</button>
+        <button onclick="loadCreateAccount()">Create Account</button></div><div class="create-account">
+        <h1>Create an Account:</h1>
+        <label for="fName">First Name:</label><input type="text" name="fName" id="fName"><label for="lName">Last Name:</label><input type="text" name="lName" id="lName"><label for="email">Email:</label><input type="email" name="email" id="email">
+        <label for="password">password:</label>
+        <input type="password" name="password" id="pw">
+        <input type="submit" name="submit" onclick="createAccount();" value="Create Account">
+    </div>`)
+}
+
+function loadLogin() {
+    $(".login-create").html(`
+    
+   <div class="buttons">
+    <button onclick="loadLogin()">Login</button>
+        <button onclick="loadCreateAccount()">Create Account</button>
+    </div>
+        
+    <div class="login">
+    <h1> Login: </h1>
+        <label for="email">Email: </label>
+        <input type="email" id="log-email" placeholder="Email Address:">
+        <label for="pw">Password:</label>
+        <input type="password" name="pw" id="log-pw" placeholder="Password">
+        <input type="submit" value="Log In" onclick="login()" name="submit">
+    </div>
+    `)
+}
 
 function loadLists() {
     let listString = "<ul>";
@@ -592,10 +626,107 @@ function loadListItems(listIndex) {
     $("#app").html(listString);
 }
 
-function initListeners() {
+function initListeners() {};
 
+function initFirebase() {
+    firebase.auth().onAuthStateChanged((user) => {
+        if (user) {
+            console.log("auth change logged in");
+            if (user.displayName) {
+                $(".name").html(user.displayName);
+            }
+            $(".load").prop("disabled", false)
+            userExists = true;
+
+        } else {
+            console.log("auth change logged out");
+            $(".name").html('')
+            $(".load").prop("disabled", true)
+            userExists = false;
+            userFullName = "";
+        }
+    })
 }
 
+
+
+function signOut() {
+    firebase
+        .auth()
+        .signOut()
+        .then(() => {
+            console.log("signed out");
+        })
+        .catch((error) => {
+            console.log("error signing out" + error);
+        });
+}
+
+function login() {
+    let email = $("#log-email").val();
+    let password = $("#log-pw").val();
+    firebase.auth().signInWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            var user = userCredential.user;
+            console.log('Logged in')
+            if (user.displayName) {
+                $(".name").html(user.displayName);
+            }
+        })
+        .catch((error) => {
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            console.log("Logged error " + errorMessage);
+        });
+}
+
+function createAccount() {
+    let fName = $("#fName").val();
+    let lName = $("#lName").val();
+    let email = $("#email").val();
+    let password = $("#pw").val();
+    let fullName = fName + ' ' + lName;
+
+    console.log("create " + fName + ' ' + lName + " ")
+    firebase.auth().createUserWithEmailAndPassword(email, password)
+        .then((userCredential) => {
+            // Signed in
+            var user = userCredential.user;
+            console.log('created');
+            userFullName = fullName;
+            firebase.auth().currentUser.updateProfile({
+                displayName: fullName,
+
+            });
+
+        })
+        .catch((error) => {
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            console.log('Create Error ' + errorMessage);
+        })
+}
+
+function signIn() {
+    firebase
+        .auth()
+        .signInAnonymously()
+        .then(() => {
+            console.log('Signed in');
+        })
+        .catch((error) => {
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            console.log("Error Signing in... " + errorMessage)
+        });
+};
+
 $(document).ready(function() {
-    initListeners();
+    try {
+        let app = firebase.app();
+        initFirebase();
+        initListeners();
+    } catch (error) {
+        console.log("Error:" + error);
+    }
 })

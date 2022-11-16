@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Welcome to Firebase Hosting</title>
+
+
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+
+<body>
+    <nav><button onclick="loadLists()" class="load">Load Lists</button>
+        <div class="buttons"><button onclick="signIn()">Sign In</button>
+            <button onclick="signOut()">Sign Out</button></div>
+    </nav>
+    <div class="login-create">
+        <div class="buttons">
+            <button onclick="loadLogin()">Login</button>
+            <button onclick="loadCreateAccount()">Create Account</button>
+        </div>
+    </div>
+
+
+    <div id="app">
+        <div class="title">
+            <h1>Website of Lists! <br/> <br/> First Login or create an account, then click load lists to load all of the list Categories. Click on a category to view the entire list.<br/>You can then cross items off the lists, add more, or delete items entirely.</h1>
+
+        </div>
+
+    </div>
+    <!-- update the version number as needed -->
+    <script defer src="/__/firebase/9.14.0/firebase-app-compat.js"></script>
+    <!-- include only the Firebase features as you need -->
+    <script defer src="/__/firebase/9.14.0/firebase-auth-compat.js"></script>
+    <script defer src="/__/firebase/9.14.0/firebase-database-compat.js"></script>
+    <script defer src="/__/firebase/9.14.0/firebase-firestore-compat.js"></script>
+    <script defer src="/__/firebase/9.14.0/firebase-functions-compat.js"></script>
+    <script defer src="/__/firebase/9.14.0/firebase-messaging-compat.js"></script>
+    <script defer src="/__/firebase/9.14.0/firebase-storage-compat.js"></script>
+    <script defer src="/__/firebase/9.14.0/firebase-analytics-compat.js"></script>
+    <script defer src="/__/firebase/9.14.0/firebase-remote-config-compat.js"></script>
+    <script defer src="/__/firebase/9.14.0/firebase-performance-compat.js"></script>
+    <!-- 
+      initialize the SDK after all desired features are loaded, set useEmulator to false
+      to avoid connecting the SDK to running emulators.
+    -->
+    <script defer src="/__/firebase/init.js?useEmulator=true"></script>
+    <script src="app/app.js"></script>
+</body>
+
+</html>

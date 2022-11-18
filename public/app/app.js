@@ -543,6 +543,11 @@ var LISTS = [{
 
 var userExists = false;
 var userFullName = "";
+var _db = "";
+var _userProfileInfo = {
+    lists: [],
+};
+
 
 function loadCreateAccount() {
     $(".login-create").html(`<div class="buttons"> <button onclick="loadLogin()">Login</button>
@@ -574,9 +579,39 @@ function loadLogin() {
     `)
 }
 
+function addMainList() {
+    let newListName = $("#listName").val();
+    let newListObj = {
+        name: newListName,
+        listItems: [],
+    };
+    console.log("listObj: " + newListObj)
+
+
+    _userProfileInfo.lists.push(newListObj);
+    updateUserInfo(_userProfileInfo);
+    loadLists();
+    $("#listName").val("");
+}
+
+function updateUserInfo(userObj) {
+    let id = firebase.auth().currentUser.uid;
+    _db.collection('Users')
+        .doc(id)
+        .update(userObj)
+        .then(() => {
+            console.log('Updated doc')
+        })
+        .catch((error) => {
+            var errorCode = error.code;
+            var errorMessage = error.message;
+            console.log("update error" + errorMessage)
+        })
+}
+
 function loadLists() {
     let listString = "<ul>";
-    $.each(LISTS, function(idx, list) {
+    $.each(_userProfileInfo.lists, function(idx, list) {
         listString += `<li id="${idx}" onclick="loadListItems(${idx})">${list.name} <span class="right">Items: ${list.listItems.length}</span></li>`
     });
     listString += "</ul>";
@@ -585,9 +620,11 @@ function loadLists() {
 
 function itemChecked(element, listIndex, itemIndex) {
     $(element).parent().toggleClass("strike");
-    let checkedValue = !LISTS[listIndex].listItems[itemIndex].checked;
-    LISTS[listIndex].listItems[itemIndex].checked = checkedValue
-        // console.log(LISTS);
+    let checkedValue = !_userProfileInfo.lists[listIndex].listItems[itemIndex].checked;
+    _userProfileInfo.lists[listIndex].listItems[itemIndex].checked = checkedValue
+    updateUserInfo(_userProfileInfo);
+
+    // console.log(LISTS);
 
 }
 
@@ -599,20 +636,23 @@ function addItem(listIndex) {
         checked: false,
         category: "",
     };
-    LISTS[listIndex].listItems.push(newItemObj);
-    console.log(LISTS);
+    _userProfileInfo.lists[listIndex].listItems.push(newItemObj);
+    console.log(_userProfileInfo.lists);
+    updateUserInfo(_userProfileInfo);
+
     loadListItems(listIndex);
 }
 
 function deleteItem(listIndex, idx) {
-    LISTS[listIndex].listItems.splice(idx, 1);
+    _userProfileInfo.lists[listIndex].listItems.splice(idx, 1);
+    updateUserInfo(_userProfileInfo);
     loadListItems(listIndex);
 }
 
 function loadListItems(listIndex) {
     let listString = `<button onclick="loadLists()">Back</button><ul>`;
 
-    $.each(LISTS[listIndex].listItems, function(idx, listItem) {
+    $.each(_userProfileInfo.lists[listIndex].listItems, function(idx, listItem) {
         listString += `<li id="{idx}" class="${listItem.checked ? "strike" : ''}"><input ${listItem.checked ? (checked = 'checked') : ''} type="checkbox" id="${idx}" name="${listItem.name}" onclick="itemChecked(this, ${listIndex}, ${idx} )"><span>${listItem.name}</span>
         <span class="delete" onclick="deleteItem(${listIndex}, ${idx})">
         Delete
@@ -630,20 +670,25 @@ function initListeners() {};
 
 function initFirebase() {
     firebase.auth().onAuthStateChanged((user) => {
+
         if (user) {
-            console.log("auth change logged in");
+            _db = firebase.firestore();
             if (user.displayName) {
                 $(".name").html(user.displayName);
             }
             $(".load").prop("disabled", false)
             userExists = true;
+            loadLists();
 
         } else {
+            _db = "";
             console.log("auth change logged out");
             $(".name").html('')
             $(".load").prop("disabled", true)
             userExists = false;
             userFullName = "";
+            _userProfileInfo = {};
+            $("#app").empty();
         }
     })
 }
@@ -665,6 +710,7 @@ function signOut() {
 function login() {
     let email = $("#log-email").val();
     let password = $("#log-pw").val();
+
     firebase.auth().signInWithEmailAndPassword(email, password)
         .then((userCredential) => {
             var user = userCredential.user;
@@ -672,6 +718,23 @@ function login() {
             if (user.displayName) {
                 $(".name").html(user.displayName);
             }
+            _db
+                .collection("Users")
+                .doc(user.uid)
+                .get()
+                .then((document) => {
+                    _userProfileInfo = document.data();
+
+
+                    loadLists();
+                    console.log("login userinfo", _userProfileInfo);
+
+                })
+                .catch((error) => {
+                    var errorCode = error.code;
+                    var errorMessage = error.message;
+                    console.log("Logged error " + errorMessage);
+                });
         })
         .catch((error) => {
             var errorCode = error.code;
@@ -687,6 +750,12 @@ function createAccount() {
     let password = $("#pw").val();
     let fullName = fName + ' ' + lName;
 
+    let userObj = {
+        firstName: fName,
+        lastName: lName,
+        email: email,
+        lists: [],
+    }
     console.log("create " + fName + ' ' + lName + " ")
     firebase.auth().createUserWithEmailAndPassword(email, password)
         .then((userCredential) => {
@@ -698,6 +767,20 @@ function createAccount() {
                 displayName: fullName,
 
             });
+
+            _db.collection("Users")
+                .doc(user.uid)
+                .set(userObj)
+                .then((document) => {
+                    console.log('Doc added' + document)
+                    _userProfileInfo = userObj;
+                    console.log('create userinfo', _userProfileInfo)
+                })
+                .catch((error) => {
+                    var errorCode = error.code;
+                    var errorMessage = error.message;
+                    console.log('Error: ' + errorMessage)
+                });
 
         })
         .catch((error) => {

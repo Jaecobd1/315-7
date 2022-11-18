@@ -99,7 +99,8 @@ nav {
 }
 
 .create-account,
-.login {
+.login,
+.addList {
     padding: 20px;
     display: flex;
     flex-direction: column;
